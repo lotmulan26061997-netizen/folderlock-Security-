@@ -1,0 +1,35 @@
+{
+  "name": "vaultkeep",
+  "productName": "VaultKeep",
+  "version": "1.0.0",
+  "description": "Drop a folder in, set a password, keep it out of sight.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "author": "Kimlong",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "electron": "^32.3.3",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.kimlong.vaultkeep",
+    "productName": "VaultKeep",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": [
+        "dmg"
+      ]
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "renderer.js",
+      "style.css"
+    ]
+  }
+}

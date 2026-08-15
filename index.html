@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VaultKeep</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="titlebar-spacer"></div>
+
+  <main class="app">
+    <header class="app-header">
+      <div class="mark">
+        <svg class="mark-icon" viewBox="0 0 40 40" width="26" height="26" aria-hidden="true">
+          <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="20" cy="20" r="3" fill="currentColor"/>
+          <line x1="20" y1="20" x2="20" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <h1>VaultKeep</h1>
+      </div>
+      <p class="tagline">Drop a folder in. Set a password. It disappears until you ask for it back.</p>
+    </header>
+
+    <section id="dropzone" class="dropzone" tabindex="0">
+      <div class="dial" id="dial">
+        <div class="dial-notch"></div>
+      </div>
+      <p class="drop-title">Drag a folder here</p>
+      <p class="drop-sub">or <button id="chooseBtn" class="link-btn">choose one</button></p>
+    </section>
+
+    <section class="vault-list-wrap">
+      <div class="vault-list-header">
+        <h2>Locked</h2>
+        <span id="count" class="count">0</span>
+      </div>
+      <ul id="vaultList" class="vault-list"></ul>
+      <p id="emptyState" class="empty-state">Nothing locked yet. What you drop above stays private until you unlock it with its password.</p>
+    </section>
+  </main>
+
+  <!-- Set password modal -->
+  <div id="lockModal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3>Lock this folder</h3>
+      <p class="modal-sub" id="lockFolderName">—</p>
+
+      <label class="field-label" for="labelInput">Display name (optional)</label>
+      <input id="labelInput" class="text-input" type="text" placeholder="e.g. My Personal Work" />
+
+      <label class="field-label" for="passInput">Set a password</label>
+      <input id="passInput" class="text-input" type="password" placeholder="Password" />
+
+      <label class="field-label" for="passConfirm">Confirm password</label>
+      <input id="passConfirm" class="text-input" type="password" placeholder="Confirm password" />
+
+      <p id="lockError" class="error-text hidden"></p>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="lockCancel">Cancel</button>
+        <button class="btn btn-primary" id="lockConfirm">Lock folder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unlock modal -->
+  <div id="unlockModal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3>Unlock</h3>
+      <p class="modal-sub" id="unlockItemName">—</p>
+
+      <label class="field-label" for="unlockPassInput">Password</label>
+      <input id="unlockPassInput" class="text-input" type="password" placeholder="Password" />
+
+      <p id="unlockError" class="error-text hidden"></p>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="unlockCancel">Cancel</button>
+        <button class="btn btn-primary" id="unlockConfirm">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
