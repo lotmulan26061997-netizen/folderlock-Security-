@@ -20,6 +20,7 @@
     "productName": "VaultKeep",
     "mac": {
       "category": "public.app-category.utilities",
+      "icon": "assets/icon.icns",
       "target": [
         "dmg"
       ]
@@ -31,7 +32,8 @@
       "renderer.js",
       "style.css",
       "cyber-bg.js",
-      "radar-bg.js"
+      "radar-bg.js",
+      "assets/**/*"
     ]
   }
 }

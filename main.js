@@ -124,7 +124,7 @@ function listLinuxStyleDirectory(dirPath) {
   }
 }
 
-let mainWindow;
+const iconPath = path.join(__dirname, 'assets', 'icon.png');
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -134,6 +134,7 @@ function createWindow() {
     minHeight: 580,
     titleBarStyle: 'hiddenInset',
     backgroundColor: '#04080c',
+    icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -143,7 +144,16 @@ function createWindow() {
   mainWindow.loadFile('index.html');
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  if (process.platform === 'darwin' && app.dock && fs.existsSync(iconPath)) {
+    try {
+      app.dock.setIcon(iconPath);
+    } catch (e) {
+      console.warn('Could not set dock icon:', e.message);
+    }
+  }
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
