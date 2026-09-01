@@ -2,87 +2,182 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>VaultKeep</title>
+  <title>VaultKeep // CYBER SECURITY VAULT</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="titlebar-spacer"></div>
+  <canvas id="radarCanvas"></canvas>
+  <div class="scanline-overlay"></div>
+
+  <!-- Outer Sci-Fi HUD Frame Brackets -->
+  <div class="hud-frame">
+    <div class="hud-corner top-left"></div>
+    <div class="hud-corner top-right"></div>
+    <div class="hud-corner bottom-left"></div>
+    <div class="hud-corner bottom-right"></div>
+  </div>
 
   <main class="app">
-    <header class="app-header">
-      <div class="mark">
-        <svg class="mark-icon" viewBox="0 0 40 40" width="26" height="26" aria-hidden="true">
-          <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/>
-          <circle cx="20" cy="20" r="3" fill="currentColor"/>
-          <line x1="20" y1="20" x2="20" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <h1>VaultKeep</h1>
+    <!-- Cyber Telemetry Status Bar -->
+    <div class="hud-telemetry-bar">
+      <div class="telemetry-item">
+        <span class="telemetry-dot active"></span>
+        <span class="telemetry-label">SYSTEM STATUS:</span>
+        <span class="telemetry-val glowing">MONITORING SECURE</span>
       </div>
-      <p class="tagline">Drop a folder in. Set a password. It disappears until you ask for it back.</p>
+      <div class="telemetry-item hide-mobile">
+        <span class="telemetry-label">PROTOCOL:</span>
+        <span class="telemetry-val">AES-256 SHA-512</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">SYS TIME:</span>
+        <span id="sysTimeDisplay" class="telemetry-val">00:00:00</span>
+      </div>
+    </div>
+
+    <header class="app-header hud-box">
+      <div class="corner-tick tl"></div><div class="corner-tick tr"></div>
+      <div class="corner-tick bl"></div><div class="corner-tick br"></div>
+      <div class="mark">
+        <div class="cyber-shield-icon">
+          <svg class="mark-icon" viewBox="0 0 40 40" width="28" height="28" aria-hidden="true">
+            <polygon points="20,3 36,9 36,23 20,37 4,23 4,9" fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="20" cy="20" r="4" fill="currentColor"/>
+            <line x1="20" y1="8" x2="20" y2="16" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <h1 id="cyberTitle" class="glitch-title" data-text="VAULTKEEP // CYBER VAULT">VAULTKEEP // CYBER VAULT</h1>
+      </div>
+      <p class="tagline">// ENCRYPTED CONTAINMENT PROTOCOL · DROP FOLDER TO SECURE</p>
     </header>
 
-    <section id="dropzone" class="dropzone" tabindex="0">
-      <div class="dial" id="dial">
-        <div class="dial-notch"></div>
+    <!-- Animated Cyber Lock Containment Box -->
+    <section id="dropzone" class="dropzone hud-box" tabindex="0">
+      <div class="corner-tick tl"></div><div class="corner-tick tr"></div>
+      <div class="corner-tick bl"></div><div class="corner-tick br"></div>
+      <div class="laser-scanner"></div>
+      
+      <div class="dial-container">
+        <div class="hex-ring"></div>
+        <div class="dial" id="dial">
+          <div class="dial-notch"></div>
+        </div>
       </div>
-      <p class="drop-title">Drag a folder here</p>
-      <p class="drop-sub">or <button id="chooseBtn" class="link-btn">choose one</button></p>
+
+      <div class="drop-info">
+        <p id="dropTitle" class="drop-title">CONTAINMENT TARGET // DRAG FOLDER HERE</p>
+        <p class="drop-sub">or <button id="chooseBtn" class="link-btn">[ INITIATE FOLDER SELECTION ]</button></p>
+      </div>
+      <div class="box-status-tag">SECURE VAULT MODULE</div>
     </section>
 
-    <section class="vault-list-wrap">
+    <!-- Locked Folders Telemetry Panel -->
+    <section class="vault-list-wrap hud-box">
+      <div class="corner-tick tl"></div><div class="corner-tick tr"></div>
+      <div class="corner-tick bl"></div><div class="corner-tick br"></div>
       <div class="vault-list-header">
-        <h2>Locked</h2>
+        <div class="header-title-group">
+          <span class="hud-dot"></span>
+          <h2>CONTAINMENT NODES [ LOCKED ]</h2>
+        </div>
         <span id="count" class="count">0</span>
       </div>
       <ul id="vaultList" class="vault-list"></ul>
-      <p id="emptyState" class="empty-state">Nothing locked yet. What you drop above stays private until you unlock it with its password.</p>
+      <p id="emptyState" class="empty-state">
+        <span class="empty-icon">🛡️</span><br/>
+        [ NO CONTAINMENT OBJECTS ACTIVE ]<br/>
+        Drop any folder into the containment box above to initiate hardware-level vault protection.
+      </p>
     </section>
   </main>
 
-  <!-- Set password modal -->
-  <div id="lockModal" class="modal-overlay hidden">
-    <div class="modal">
-      <h3>Lock this folder</h3>
-      <p class="modal-sub" id="lockFolderName">—</p>
-
-      <label class="field-label" for="labelInput">Display name (optional)</label>
-      <input id="labelInput" class="text-input" type="text" placeholder="e.g. My Personal Work" />
-
-      <label class="field-label" for="passInput">Set a password</label>
-      <input id="passInput" class="text-input" type="password" placeholder="Password" />
-
-      <label class="field-label" for="passConfirm">Confirm password</label>
-      <input id="passConfirm" class="text-input" type="password" placeholder="Confirm password" />
-
-      <p id="lockError" class="error-text hidden"></p>
-
-      <div class="modal-actions">
-        <button class="btn btn-ghost" id="lockCancel">Cancel</button>
-        <button class="btn btn-primary" id="lockConfirm">Lock folder</button>
+  <!-- Lock sequence — Cyber Security Containment Setup -->
+  <div id="lockScreen" class="cyber-screen hidden">
+    <canvas class="cyber-bg" id="lockBgCv"></canvas>
+    <div class="cyber-modal-box hud-box">
+      <div class="corner-tick tl"></div><div class="corner-tick tr"></div>
+      <div class="corner-tick bl"></div><div class="corner-tick br"></div>
+      <div class="cyber-modal-header">
+        <span class="cyber-badge warning">ENCRYPTION SEQUENCE</span>
+        <h3>SECURE TARGET CONTAINMENT</h3>
       </div>
+      <div class="lp-fields" id="lockFields">
+        <div class="lp-field" id="lkFieldLabel">
+          <div class="lp-label">// CONTAINMENT ALIAS (FOLDER NAME)</div>
+          <input class="lp-input" id="lkLabelInput" type="text" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="lp-field" id="lkFieldPass" style="display:none">
+          <div class="lp-label">// SET CIPHER PASSPHRASE</div>
+          <input class="lp-input" id="lkPassInput" type="password" autocomplete="off" />
+        </div>
+        <div class="lp-field" id="lkFieldConfirm" style="display:none">
+          <div class="lp-label">// CONFIRM CIPHER PASSPHRASE</div>
+          <input class="lp-input" id="lkConfirmInput" type="password" autocomplete="off" />
+        </div>
+      </div>
+      <p class="cyber-target" id="lockTargetPath">—</p>
+      <p class="cyber-error hidden" id="lockScreenError"></p>
+      <p class="cyber-hint">PRESS [ ENTER ] TO PROCEED &nbsp;·&nbsp; [ ESC ] TO ABORT</p>
     </div>
   </div>
 
-  <!-- Unlock modal -->
-  <div id="unlockModal" class="modal-overlay hidden">
-    <div class="modal">
-      <h3>Unlock</h3>
-      <p class="modal-sub" id="unlockItemName">—</p>
+  <!-- Unlock sequence — Cyber Access Terminal -->
+  <div id="unlockScreen" class="cyber-screen hidden">
+    <canvas class="cyber-bg" id="unlockBgCv"></canvas>
+    <div class="cyber-modal-box hud-box">
+      <div class="corner-tick tl"></div><div class="corner-tick tr"></div>
+      <div class="corner-tick bl"></div><div class="corner-tick br"></div>
+      <div class="cyber-modal-header">
+        <span class="cyber-badge success">DECRYPTION AUTHENTICATION</span>
+        <h3 id="ulHeaderTitle">CYBER CLEARANCE ACCESS</h3>
+      </div>
+      <div class="lp-fields" id="unlockFields">
+        <div class="lp-field" id="ulFieldPass">
+          <div class="lp-label" id="ulLabel">// CIPHER PASSPHRASE REQUIRED</div>
+          <input class="lp-input" id="ulPassInput" type="password" autocomplete="off" placeholder="••••••••" />
+        </div>
+      </div>
+      <p class="cyber-error hidden" id="unlockScreenError"></p>
+      <p class="cyber-hint">PRESS [ ENTER ] TO DECRYPT &nbsp;·&nbsp; [ ESC ] TO CANCEL</p>
+    </div>
+  </div>
 
-      <label class="field-label" for="unlockPassInput">Password</label>
-      <input id="unlockPassInput" class="text-input" type="password" placeholder="Password" />
+  <!-- Linux Terminal Directory Listing Screen -->
+  <div id="terminalScreen" class="cyber-screen hidden">
+    <canvas class="cyber-bg" id="termBgCv"></canvas>
+    <div class="cyber-terminal-box hud-box">
+      <div class="corner-tick tl"></div><div class="corner-tick tr"></div>
+      <div class="corner-tick bl"></div><div class="corner-tick br"></div>
+      
+      <div class="terminal-titlebar">
+        <div class="terminal-dots">
+          <span class="term-dot red" id="closeTermDot"></span>
+          <span class="term-dot yellow"></span>
+          <span class="term-dot green"></span>
+        </div>
+        <span id="termTitle" class="terminal-title">root@cyber-vault:~# ls -la</span>
+      </div>
 
-      <p id="unlockError" class="error-text hidden"></p>
+      <div class="terminal-body" id="termBody">
+        <div class="term-command">
+          <span class="prompt-user">root@cyber-vault</span>:<span class="prompt-path" id="termCmdPath">/mnt/vault/unlocked</span># <span class="cmd-text">ls -la --color=auto</span>
+        </div>
+        <div class="term-output" id="termOutput"></div>
+        <div class="term-summary" id="termSummary"></div>
+      </div>
 
-      <div class="modal-actions">
-        <button class="btn btn-ghost" id="unlockCancel">Cancel</button>
-        <button class="btn btn-primary" id="unlockConfirm">Unlock</button>
+      <div class="terminal-actions">
+        <button id="openFolderBtn" class="btn btn-primary">[ OPEN FOLDER IN FINDER ]</button>
+        <button id="closeTermBtn" class="btn btn-ghost">[ CLOSE TERMINAL ]</button>
       </div>
     </div>
   </div>
 
   <div id="toast" class="toast hidden"></div>
 
+  <script src="radar-bg.js"></script>
+  <script src="cyber-bg.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>

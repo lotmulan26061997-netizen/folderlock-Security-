@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -37,16 +37,103 @@ function moveSync(src, dest) {
   }
 }
 
+function getLinuxPermissions(stats) {
+  let perms = stats.isDirectory() ? 'd' : '-';
+  const mode = stats.mode;
+  perms += (mode & 0o400) ? 'r' : '-';
+  perms += (mode & 0o200) ? 'w' : '-';
+  perms += (mode & 0o100) ? 'x' : '-';
+  perms += (mode & 0o040) ? 'r' : '-';
+  perms += (mode & 0o020) ? 'w' : '-';
+  perms += (mode & 0o010) ? 'x' : '-';
+  perms += (mode & 0o004) ? 'r' : '-';
+  perms += (mode & 0o002) ? 'w' : '-';
+  perms += (mode & 0o001) ? 'x' : '-';
+  return perms;
+}
+
+function formatLinuxDate(d) {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = months[d.getMonth()];
+  const day = String(d.getDate()).padStart(2, ' ');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${month} ${day} ${hours}:${minutes}`;
+}
+
+function listLinuxStyleDirectory(dirPath) {
+  try {
+    if (!fs.existsSync(dirPath)) return [];
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    const result = [
+      {
+        permissions: 'drwxr-xr-x',
+        links: 2,
+        user: 'root',
+        group: 'root',
+        size: 4096,
+        date: formatLinuxDate(new Date()),
+        name: '.',
+        isDir: true
+      },
+      {
+        permissions: 'drwxr-xr-x',
+        links: 4,
+        user: 'root',
+        group: 'root',
+        size: 4096,
+        date: formatLinuxDate(new Date()),
+        name: '..',
+        isDir: true
+      }
+    ];
+
+    entries.forEach((ent) => {
+      const fullPath = path.join(dirPath, ent.name);
+      try {
+        const stat = fs.statSync(fullPath);
+        result.push({
+          permissions: getLinuxPermissions(stat),
+          links: stat.isDirectory() ? 2 : 1,
+          user: 'root',
+          group: 'root',
+          size: stat.size,
+          date: formatLinuxDate(stat.mtime),
+          name: ent.name,
+          isDir: stat.isDirectory(),
+          isExec: !stat.isDirectory() && (stat.mode & 0o111) !== 0
+        });
+      } catch (e) {
+        result.push({
+          permissions: ent.isDirectory() ? 'drwxr-xr-x' : '-rw-r--r--',
+          links: 1,
+          user: 'root',
+          group: 'root',
+          size: 0,
+          date: formatLinuxDate(new Date()),
+          name: ent.name,
+          isDir: ent.isDirectory(),
+          isExec: false
+        });
+      }
+    });
+
+    return result;
+  } catch (err) {
+    return [];
+  }
+}
+
 let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 480,
-    height: 640,
-    minWidth: 420,
-    minHeight: 560,
+    width: 520,
+    height: 680,
+    minWidth: 440,
+    minHeight: 580,
     titleBarStyle: 'hiddenInset',
-    backgroundColor: '#191b20',
+    backgroundColor: '#04080c',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -135,6 +222,9 @@ ipcMain.handle('vault:unlock', async (event, { id, password }) => {
     destination = path.join(result.filePaths[0], path.basename(item.originalPath));
   }
 
+  // Get Linux style file list before moving
+  const linuxFiles = listLinuxStyleDirectory(item.storedPath);
+
   try {
     moveSync(item.storedPath, destination);
   } catch (err) {
@@ -144,7 +234,7 @@ ipcMain.handle('vault:unlock', async (event, { id, password }) => {
   data.items = data.items.filter((i) => i.id !== id);
   writeIndex(data);
 
-  return { ok: true, destination };
+  return { ok: true, destination, label: item.label, files: linuxFiles };
 });
 
 ipcMain.handle('vault:choose-folder', async () => {
@@ -154,3 +244,12 @@ ipcMain.handle('vault:choose-folder', async () => {
   if (result.canceled || result.filePaths.length === 0) return null;
   return result.filePaths[0];
 });
+
+ipcMain.handle('vault:open-path', (event, targetPath) => {
+  if (targetPath && fs.existsSync(targetPath)) {
+    shell.openPath(targetPath);
+    return true;
+  }
+  return false;
+});
+

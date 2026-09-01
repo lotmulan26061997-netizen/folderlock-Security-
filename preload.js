@@ -5,6 +5,8 @@ contextBridge.exposeInMainWorld('vault', {
   lock: (payload) => ipcRenderer.invoke('vault:lock', payload),
   unlock: (payload) => ipcRenderer.invoke('vault:unlock', payload),
   chooseFolder: () => ipcRenderer.invoke('vault:choose-folder'),
+  openPath: (targetPath) => ipcRenderer.invoke('vault:open-path', targetPath),
   // Resolve a real filesystem path from a File dropped onto the window.
   pathForFile: (file) => webUtils.getPathForFile(file),
 });
+
