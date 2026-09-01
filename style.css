@@ -121,6 +121,7 @@ html, body {
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--cyan-dark) transparent;
+  -webkit-app-region: no-drag;
 }
 .app::-webkit-scrollbar { width: 4px; }
 .app::-webkit-scrollbar-thumb { background: var(--cyan-dark); border-radius: 2px; }
@@ -204,6 +205,9 @@ html, body {
   border-radius: 4px;
   outline: none;
   overflow: hidden;
+  position: relative;
+  z-index: 3;
+  -webkit-app-region: no-drag;
 }
 .dropzone:hover, .dropzone.dragover {
   border-color: var(--cyan);
@@ -299,18 +303,26 @@ html, body {
   color: var(--text-muted);
 }
 .link-btn {
-  background: none;
-  border: none;
+  background: rgba(0, 80, 90, 0.35);
+  border: 1px solid var(--border-cyan);
   color: var(--cyan);
   font-family: var(--font-mono);
   font-size: 11px;
   cursor: pointer;
   letter-spacing: 1px;
   transition: all 0.2s;
+  padding: 6px 14px;
+  border-radius: 3px;
+  position: relative;
+  z-index: 5;
+  -webkit-app-region: no-drag;
 }
 .link-btn:hover {
   color: #fff;
   text-shadow: 0 0 8px var(--cyan);
+  background: rgba(0, 243, 255, 0.2);
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px var(--cyan-glow);
 }
 
 .box-status-tag {
@@ -329,6 +341,9 @@ html, body {
   flex: 1;
   padding: 16px;
   border-radius: 4px;
+  position: relative;
+  z-index: 3;
+  -webkit-app-region: no-drag;
 }
 .vault-list-header {
   display: flex;
@@ -449,6 +464,8 @@ html, body {
   outline: none;
   position: relative;
   overflow: hidden;
+  z-index: 5;
+  -webkit-app-region: no-drag;
 }
 .btn-primary {
   background: rgba(0, 80, 90, 0.7);
