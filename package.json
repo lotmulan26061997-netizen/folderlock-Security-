@@ -29,7 +29,9 @@
       "preload.js",
       "index.html",
       "renderer.js",
-      "style.css"
+      "style.css",
+      "cyber-bg.js",
+      "radar-bg.js"
     ]
   }
 }
